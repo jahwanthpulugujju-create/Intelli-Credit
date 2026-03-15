@@ -1,0 +1,16 @@
+project_id = "ylcgihglggvducvmcxfa"
+
+[functions.analyze-document-type]
+verify_jwt = false
+
+[functions.extract-financial-data]
+verify_jwt = false
+
+[functions.research-company]
+verify_jwt = false
+
+[functions.calculate-credit-score]
+verify_jwt = false
+
+[functions.generate-investment-report]
+verify_jwt = false
