@@ -1,6 +1,6 @@
 # Intelli-Credit
 
-AI-Powered Enterprise Credit Intelligence Platform — Transform financial documents into actionable underwriting reports.
+AI-Powered Enterprise Credit Intelligence Platform , Transform financial documents into actionable underwriting reports.
 
 ## Tech Stack
 
