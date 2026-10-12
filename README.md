@@ -1,43 +1,102 @@
 # Intelli-Credit
 
-Credit intelligence software that brings company onboarding, financial-document analysis, risk signals, and underwriting reports into one analyst workspace.
+### From financial documents to an analyst-reviewed credit assessment.
 
-## Product workflow
+[![CI](https://github.com/jahwanthpulugujju-create/Intelli-Credit/actions/workflows/ci.yml/badge.svg)](https://github.com/jahwanthpulugujju-create/Intelli-Credit/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![React](https://img.shields.io/badge/React-18-149eca?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?logo=typescript&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ecf8e?logo=supabase&logoColor=white)
 
-1. Create a company profile and record the financing request.
-2. Upload financial documents and review their classification.
-3. Extract financial data, review risk indicators, and run company analysis.
-4. Generate an underwriting report for analyst review and export.
+Intelli-Credit is an open-source credit intelligence workspace for company onboarding, financial-document review, risk analysis, and underwriting reports. It gives developers a starting point for building credit workflows and gives analysts a connected view of the evidence behind an assessment.
 
-The application combines a React and TypeScript client with Supabase authentication, PostgreSQL, private document storage, and server-side analysis functions. AI-generated findings require analyst verification before use in a lending decision.
+[Get started](#get-started) · [Architecture](docs/architecture.md) · [Contribute](CONTRIBUTING.md) · [Roadmap](docs/roadmap.md) · [Report an issue](https://github.com/jahwanthpulugujju-create/Intelli-Credit/issues)
 
-## Repository structure
+## What you can build with it
 
-- `src/pages/` — company, document, analysis, reporting, and administration workflows.
-- `src/components/` — application layouts, credit visualizations, document review, and UI primitives.
-- `src/contexts/`, `src/hooks/`, `src/lib/` — authentication state and shared client utilities.
-- `src/integrations/supabase/` — typed database client and generated schema types.
-- `supabase/functions/` — document classification, extraction, research, scoring, and report generation.
-- `supabase/migrations/` — database schema, access policies, and storage setup.
-- `docs/` — architecture, development, and deployment guidance.
+- **An underwriting workspace:** company profiles, financing requests, and a document-to-report workflow.
+- **A document review pipeline:** upload financial documents, review AI classification, and configure extraction fields.
+- **A credit analysis interface:** financial signals, risk indicators, and five-Cs scoring views.
+- **An assessment reporting tool:** analyst review and PDF export of generated reports.
 
-## Local development
+The repository provides the client, database migrations, storage policies, and server-side analysis functions. AI-generated figures and research findings need verification against source evidence before a lending decision.
 
-Use Node.js 22 or later and npm. Configure the Supabase connection as described in [Development](docs/development.md), then run:
+## How it fits together
+
+```mermaid
+flowchart LR
+  A[Analyst workspace] --> B[Supabase Auth]
+  A --> C[PostgreSQL]
+  A --> D[Private document storage]
+  A --> E[Edge functions]
+  E --> F[AI gateway]
+  E --> C
+  C --> G[Assessment and reports]
+```
+
+React Router defines application workflows. TanStack Query coordinates client server state. Supabase supplies authentication, PostgreSQL, private document storage, and five Deno edge functions for classification, extraction, research, scoring, and reporting.
+
+## Get started
+
+**Requirements:** Node.js 22.13 or later, npm, and a Supabase project. AI workflows also require access to the current AI gateway.
 
 ```sh
+git clone https://github.com/jahwanthpulugujju-create/Intelli-Credit.git
+cd Intelli-Credit
 npm ci
+```
+
+Set the two public client configuration values. In PowerShell:
+
+```powershell
+$env:VITE_SUPABASE_URL = "https://YOUR_PROJECT.supabase.co"
+$env:VITE_SUPABASE_PUBLISHABLE_KEY = "YOUR_PUBLISHABLE_KEY"
 npm run dev
 ```
 
-The development server runs at `http://localhost:8080`. npm and `package-lock.json` are the dependency source of truth.
+In Bash:
 
-## Engineering documentation
+```sh
+export VITE_SUPABASE_URL="https://YOUR_PROJECT.supabase.co"
+export VITE_SUPABASE_PUBLISHABLE_KEY="YOUR_PUBLISHABLE_KEY"
+npm run dev
+```
 
-- [Architecture](docs/architecture.md) — components, data flow, and trust boundaries.
-- [Development](docs/development.md) — prerequisites, configuration, and validation commands.
-- [Deployment](docs/deployment.md) — client hosting, backend setup, and release checks.
+Open **http://localhost:8080**. Apply the backend migrations and configure the edge functions using the [development guide](docs/development.md). No environment files or working credentials are distributed in the repository.
 
-## Current boundaries
+**Just exploring the code?** Type checks, unit tests, lint, and the production build can run without a live backend:
 
-This repository implements an underwriting application; it does not establish regulatory compliance or validate model accuracy. The analysis functions use an external AI gateway. Function authorization and document-access policies require a deployment-specific security review before processing confidential financial data.
+```sh
+npm run check
+npm run lint
+npm test
+npm run build
+```
+
+Unit tests cover document selection limits and error handling. They do not replace authenticated, database-backed integration verification.
+
+## Find your way around
+
+- `src/pages/` — company, document, analysis, reporting, and administration workflows.
+- `src/components/` — layouts, credit charts, document review, and UI primitives.
+- `src/lib/` — shared utilities and validation tests.
+- `src/integrations/supabase/` — typed client and generated database schema types.
+- `supabase/functions/` — server-side analysis functions.
+- `supabase/migrations/` — schema, access policies, and document storage setup.
+- `docs/` — architecture, development, deployment, and contribution direction.
+
+## Contribute
+
+Fork the repository and read [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports, regression tests, accessibility improvements, and clearer setup examples are welcome. For larger changes, open a feature proposal first. The [roadmap](docs/roadmap.md) identifies authorization, provider portability, provenance, and integration testing as useful next steps.
+
+If the project is useful to you, a star helps other developers discover it. Share what you are building through an issue with a concrete use case.
+
+## Deployment boundaries
+
+This is a reference application, not a certified lending system. Edge-function platform JWT verification is currently disabled, and the existing document policies require deployment-specific authorization review. The current AI integration uses an external gateway. Do not process confidential financial information until access controls and integrations have been reviewed for your deployment.
+
+See [Architecture](docs/architecture.md), [Deployment](docs/deployment.md), and [Security](SECURITY.md) for the current boundaries and reporting process.
+
+## License
+
+[MIT](LICENSE). You may use, modify, and distribute the project under the license terms. Retain the copyright and license notice; dependencies retain their own licenses.

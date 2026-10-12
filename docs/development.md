@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Node.js 22 or later and npm.
+- Node.js 22.13 or later and npm.
 - A Supabase project with the repository migrations applied.
 - An AI gateway credential for workflows that call the edge functions.
 
@@ -29,10 +29,10 @@ The edge functions read `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `LOVABL
 ## Validation
 
 ```sh
-npm run build
+npm run check
 npm run lint
-npx tsc -p tsconfig.app.json --noEmit
-npx tsc -p tsconfig.node.json --noEmit
+npm test
+npm run build
 ```
 
-Vitest is configured for future client tests, but no client test suite is currently checked in. `npm test` reports that no test files exist; it is not evidence of passing application tests. Integration verification requires a configured Supabase project and analysis services.
+Vitest covers document selection limits and error-message handling. These unit tests run without backend credentials. Authenticated integration verification requires a configured Supabase project and analysis services. Client validation improves selection feedback; the storage and backend layers must independently enforce file-content and access restrictions.

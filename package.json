@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "check": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -88,5 +89,17 @@
     "typescript-eslint": "^8.38.0",
     "vite": "^6.0.0",
     "vitest": "^3.2.4"
+  },
+  "license": "MIT",
+  "description": "Credit intelligence workspace for company analysis, financial documents, and underwriting reports.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jahwanthpulugujju-create/Intelli-Credit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jahwanthpulugujju-create/Intelli-Credit/issues"
+  },
+  "engines": {
+    "node": ">=22.13.0"
   }
 }
