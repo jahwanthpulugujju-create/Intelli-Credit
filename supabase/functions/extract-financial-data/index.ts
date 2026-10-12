@@ -1,3 +1,5 @@
+interface ExtractedSignal { signal_name: string; signal_value: number | null; unit?: string; }
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -125,7 +127,7 @@ Extract financial signals. Use the company data provided as a baseline and gener
 
     const aiData = await aiResponse.json();
     const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    let signals: any[] = [];
+    let signals: ExtractedSignal[] = [];
 
     if (toolCall?.function?.arguments) {
       const parsed = JSON.parse(toolCall.function.arguments);
@@ -133,7 +135,7 @@ Extract financial signals. Use the company data provided as a baseline and gener
     }
 
     // Store signals
-    const inserts = signals.map((s: any) => ({
+    const inserts = signals.map((s) => ({
       company_id: companyId,
       document_id: documentId,
       signal_name: s.signal_name,

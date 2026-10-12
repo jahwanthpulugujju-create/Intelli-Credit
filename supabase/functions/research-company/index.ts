@@ -1,3 +1,5 @@
+interface ResearchFinding { research_type: string; severity: string; content: string; source: string; }
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -114,7 +116,7 @@ Generate realistic secondary research findings covering: sector analysis, legal 
 
     const aiData = await aiResponse.json();
     const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    let findings: any[] = [];
+    let findings: ResearchFinding[] = [];
 
     if (toolCall?.function?.arguments) {
       const parsed = JSON.parse(toolCall.function.arguments);
@@ -122,7 +124,7 @@ Generate realistic secondary research findings covering: sector analysis, legal 
     }
 
     // Store research findings
-    const inserts = findings.map((f: any) => ({
+    const inserts = findings.map((f) => ({
       company_id: companyId,
       research_type: f.research_type,
       severity: f.severity,
@@ -137,8 +139,8 @@ Generate realistic secondary research findings covering: sector analysis, legal 
 
     // Also generate risk signals from findings
     const riskInserts = findings
-      .filter((f: any) => f.severity === "medium" || f.severity === "high")
-      .map((f: any) => ({
+      .filter((f) => f.severity === "medium" || f.severity === "high")
+      .map((f) => ({
         company_id: companyId,
         risk_type: f.research_type,
         severity: f.severity,

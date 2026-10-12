@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import type { Json, Tables } from '@/integrations/supabase/types';
+import { getErrorMessage } from '@/lib/errors';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import FiveCsChart from '@/components/company/FiveCsChart';
 import FinancialSignalsChart from '@/components/company/FinancialSignalsChart';
@@ -86,14 +88,14 @@ interface CreditScore {
   capital_score: number | null;
   collateral_score: number | null;
   conditions_score: number | null;
-  reasoning: any;
+  reasoning: Json;
 }
 
 interface Report {
   id: string;
   report_type: string;
   recommendation: string | null;
-  content: any;
+  content: Json;
   created_at: string;
 }
 
@@ -120,7 +122,7 @@ export default function CompanyDetail() {
   const [docStats, setDocStats] = useState<DocStats>({ total: 0, pending: 0, approved: 0, corrected: 0, rejected: 0, unclassified: 0 });
   const [signals, setSignals] = useState<FinancialSignal[]>([]);
   const [risks, setRisks] = useState<RiskSignal[]>([]);
-  const [research, setResearch] = useState<any[]>([]);
+  const [research, setResearch] = useState<Tables<'secondary_research'>[]>([]);
   const [creditScore, setCreditScore] = useState<CreditScore | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
@@ -130,12 +132,7 @@ export default function CompanyDetail() {
   const [generating, setGenerating] = useState(false);
   const [activeStep, setActiveStep] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!companyId) return;
-    fetchAll();
-  }, [companyId]);
-
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     if (!companyId) return;
     const [companyRes, docsRes, signalsRes, risksRes, scoreRes, reportsRes, researchRes] = await Promise.all([
       supabase.from('companies').select('*').eq('id', companyId).single(),
@@ -146,6 +143,8 @@ export default function CompanyDetail() {
       supabase.from('reports').select('*').eq('company_id', companyId).order('created_at', { ascending: false }),
       supabase.from('secondary_research').select('*').eq('company_id', companyId),
     ]);
+
+    setCompany(companyRes.data);
 
     // Deduplicate signals by signal_name (keep latest)
     const rawSignals = signalsRes.data ?? [];
@@ -181,7 +180,9 @@ export default function CompanyDetail() {
     });
 
     setLoading(false);
-  };
+  }, [companyId]);
+
+  useEffect(() => { void fetchAll(); }, [fetchAll]);
 
   const handleExtract = async () => {
     if (!companyId) return;
@@ -205,8 +206,8 @@ export default function CompanyDetail() {
       }
       toast.success('Financial data extracted successfully.');
       await fetchAll();
-    } catch (e: any) {
-      toast.error(e.message || 'Extraction failed');
+    } catch (e: unknown) {
+      toast.error(getErrorMessage(e, 'Extraction failed'));
     }
     setExtracting(false); setActiveStep(null);
   };
@@ -219,8 +220,8 @@ export default function CompanyDetail() {
       if (error) throw error;
       toast.success('Secondary research completed.');
       await fetchAll();
-    } catch (e: any) {
-      toast.error(e.message || 'Research failed');
+    } catch (e: unknown) {
+      toast.error(getErrorMessage(e, 'Research failed'));
     }
     setResearching(false); setActiveStep(null);
   };
@@ -233,8 +234,8 @@ export default function CompanyDetail() {
       if (error) throw error;
       toast.success('Credit score calculated.');
       await fetchAll();
-    } catch (e: any) {
-      toast.error(e.message || 'Scoring failed');
+    } catch (e: unknown) {
+      toast.error(getErrorMessage(e, 'Scoring failed'));
     }
     setScoring(false); setActiveStep(null);
   };
@@ -250,8 +251,8 @@ export default function CompanyDetail() {
       toast.success('Investment report generated.');
       await fetchAll();
       if (data?.reportId) navigate(`/companies/${companyId}/report/${data.reportId}`);
-    } catch (e: any) {
-      toast.error(e.message || 'Report generation failed');
+    } catch (e: unknown) {
+      toast.error(getErrorMessage(e, 'Report generation failed'));
     }
     setGenerating(false); setActiveStep(null);
   };

@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { getErrorMessage } from '@/lib/errors';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -37,12 +38,8 @@ export default function SchemaEditor({ companyId }: { companyId: string }) {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadSchema();
-  }, [companyId]);
-
-  const loadSchema = async () => {
-    const { data: schemas } = await (supabase as any)
+  const loadSchema = useCallback(async () => {
+    const { data: schemas } = await supabase
       .from('extraction_schemas')
       .select('id')
       .eq('company_id', companyId)
@@ -50,12 +47,12 @@ export default function SchemaEditor({ companyId }: { companyId: string }) {
 
     if (schemas && schemas.length > 0) {
       setSchemaId(schemas[0].id);
-      const { data: fieldData } = await (supabase as any)
+      const { data: fieldData } = await supabase
         .from('extraction_schema_fields')
         .select('*')
         .eq('schema_id', schemas[0].id)
         .order('display_order');
-      setFields((fieldData || []).map((f: any) => ({
+      setFields((fieldData || []).map((f) => ({
         id: f.id,
         field_name: f.field_name,
         field_type: f.field_type,
@@ -67,7 +64,9 @@ export default function SchemaEditor({ companyId }: { companyId: string }) {
       setFields(DEFAULT_FIELDS);
     }
     setLoading(false);
-  };
+  }, [companyId]);
+
+  useEffect(() => { void loadSchema(); }, [loadSchema]);
 
   const addField = () => {
     setFields(prev => [...prev, {
@@ -83,7 +82,7 @@ export default function SchemaEditor({ companyId }: { companyId: string }) {
     setFields(prev => prev.filter((_, i) => i !== index));
   };
 
-  const updateField = (index: number, key: keyof SchemaField, value: any) => {
+  const updateField = <K extends keyof SchemaField>(index: number, key: K, value: SchemaField[K]) => {
     setFields(prev => prev.map((f, i) => i === index ? { ...f, [key]: value } : f));
   };
 
@@ -97,7 +96,7 @@ export default function SchemaEditor({ companyId }: { companyId: string }) {
       let sid = schemaId;
 
       if (!sid) {
-        const { data, error } = await (supabase as any).from('extraction_schemas').insert({
+        const { data, error } = await supabase.from('extraction_schemas').insert({
           company_id: companyId,
           created_by: user.id,
           schema_name: 'Default Schema',
@@ -108,7 +107,7 @@ export default function SchemaEditor({ companyId }: { companyId: string }) {
       }
 
       // Delete existing fields and re-insert
-      await (supabase as any).from('extraction_schema_fields').delete().eq('schema_id', sid);
+      await supabase.from('extraction_schema_fields').delete().eq('schema_id', sid);
 
       const inserts = validFields.map((f, i) => ({
         schema_id: sid!,
@@ -119,12 +118,12 @@ export default function SchemaEditor({ companyId }: { companyId: string }) {
         display_order: i,
       }));
 
-      const { error } = await (supabase as any).from('extraction_schema_fields').insert(inserts);
+      const { error } = await supabase.from('extraction_schema_fields').insert(inserts);
       if (error) throw error;
 
       toast.success('Extraction schema saved successfully.');
-    } catch (e: any) {
-      toast.error(e.message || 'Failed to save schema');
+    } catch (e: unknown) {
+      toast.error(getErrorMessage(e, 'Failed to save schema'));
     }
     setSaving(false);
   };

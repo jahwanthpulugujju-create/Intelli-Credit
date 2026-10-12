@@ -1,3 +1,4 @@
+import type { Json } from '@/integrations/supabase/types';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -52,7 +53,7 @@ interface CreditScore {
   capital_score: number | null;
   collateral_score: number | null;
   conditions_score: number | null;
-  reasoning: any;
+  reasoning: Json;
 }
 
 export default function CompanyReport() {
@@ -70,7 +71,7 @@ export default function CompanyReport() {
       supabase.from('companies').select('id, company_name, sector, subsector, headquarters').eq('id', companyId).single(),
       supabase.from('credit_scores').select('*').eq('company_id', companyId).order('created_at', { ascending: false }).limit(1),
     ]).then(([rRes, cRes, sRes]) => {
-      setReport(rRes.data as any);
+      setReport(rRes.data as unknown as ReportData);
       setCompany(cRes.data);
       setScore(sRes.data?.[0] ?? null);
       setLoading(false);
@@ -186,7 +187,7 @@ export default function CompanyReport() {
         styles: { fontSize: 9 },
         headStyles: { fillColor: [30, 41, 59] },
       });
-      y = (doc as any).lastAutoTable.finalY + 10;
+      y = (doc as typeof doc & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
     }
 
     // SWOT
@@ -218,7 +219,7 @@ export default function CompanyReport() {
         headStyles: { fillColor: [30, 41, 59] },
         columnStyles: { 0: { cellWidth: usable / 4 }, 1: { cellWidth: usable / 4 }, 2: { cellWidth: usable / 4 }, 3: { cellWidth: usable / 4 } },
       });
-      y = (doc as any).lastAutoTable.finalY + 10;
+      y = (doc as typeof doc & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
     }
 
     addSection('Recommendation Details', content?.recommendation_details);

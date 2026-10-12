@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,8 +29,8 @@ export default function Auth() {
         await signUp(email, password, fullName);
         toast.success('Account created! Check your email to verify.');
       }
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Unable to complete the request'));
     } finally {
       setLoading(false);
     }

@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -49,8 +50,8 @@ export default function CompanyOnboarding() {
       if (error) throw error;
       toast.success('Company onboarded successfully!');
       navigate('/companies');
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Unable to complete the request'));
     } finally {
       setLoading(false);
     }

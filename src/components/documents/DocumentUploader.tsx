@@ -1,3 +1,5 @@
+import { ACCEPTED_DOCUMENT_EXTENSIONS, validateDocument } from '@/lib/document-validation';
+import { toast } from 'sonner';
 import { useState, useCallback } from 'react';
 import { Upload, X, FileText, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,16 +12,6 @@ interface DocumentUploaderProps {
   onUploadComplete: () => void;
 }
 
-const ACCEPTED_TYPES = [
-  'application/pdf',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-excel',
-  'text/csv',
-  'image/png',
-  'image/jpeg',
-];
-
-const ACCEPTED_EXTENSIONS = '.pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg';
 
 export default function DocumentUploader({ companyId, onUploadComplete }: DocumentUploaderProps) {
   const { user } = useAuth();
@@ -27,6 +19,15 @@ export default function DocumentUploader({ companyId, onUploadComplete }: Docume
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [files, setFiles] = useState<File[]>([]);
+
+  const selectFiles = useCallback((candidates: File[]) => {
+    const accepted = candidates.filter(file => {
+      const error = validateDocument(file);
+      if (error) toast.error(file.name + ': ' + error);
+      return !error;
+    });
+    setFiles(prev => [...prev, ...accepted]);
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -38,15 +39,12 @@ export default function DocumentUploader({ companyId, onUploadComplete }: Docume
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setDragging(false);
-    const dropped = Array.from(e.dataTransfer.files).filter(f =>
-      ACCEPTED_TYPES.includes(f.type) || f.name.match(/\.(pdf|xlsx|xls|csv|png|jpg|jpeg)$/i)
-    );
-    setFiles(prev => [...prev, ...dropped]);
-  }, []);
+    selectFiles(Array.from(e.dataTransfer.files));
+  }, [selectFiles]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+      selectFiles(Array.from(e.target.files));
     }
   };
 
@@ -127,7 +125,7 @@ export default function DocumentUploader({ companyId, onUploadComplete }: Docume
           <input
             type="file"
             multiple
-            accept={ACCEPTED_EXTENSIONS}
+            accept={ACCEPTED_DOCUMENT_EXTENSIONS}
             onChange={handleFileSelect}
             className="hidden"
           />
